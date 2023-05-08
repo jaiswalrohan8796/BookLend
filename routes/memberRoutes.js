@@ -165,30 +165,20 @@ router.get(
                 memberId,
                 bookId
             );
-            if (!returnAction.success) {
-                let member = await db_utils.findById("Member", memberId);
-                member = await member.populate("books");
-                res.render("member/app", {
-                    user: member,
-                    error: returnAction.error,
-                    status: "",
-                });
-            } else {
-                let member = await db_utils.findById("Member", memberId);
-                member = await member.populate("books");
-                res.render("member/app", {
-                    user: member,
-                    error: "",
-                    status: "Book return success !",
-                });
-            }
+            let member = await db_utils.findById("Member", memberId);
+            member = await member.populate("books");
+            res.render("member/app", {
+                user: member,
+                error: "",
+                status: "Book return success !",
+            });
         } catch (err) {
             console.log(err);
             let member = await db_utils.findById("Member", memberId);
             member = await member.populate("books");
             res.render("member/app", {
                 user: member,
-                error: "Internal Server Error",
+                error: err.message,
                 status: "",
             });
         }

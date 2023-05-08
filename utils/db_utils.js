@@ -117,29 +117,24 @@ async function returnAllBooksfromMember(memberId) {
 }
 
 async function returnBookfromMember(memberId, bookId) {
-    try {
-        //update book in member
-        const member = await findById("Member", memberId);
-        const book = await findById("Book", bookId);
-        if (!member) {
-            return { success: false, error: "Member not found" };
-        }
-        if (!book) {
-            return { success: false, error: "Book not found" };
-        }
-        const updateMemberDetail = updateMemberBooks(member, bookId);
-        if (!updateMemberDetail) {
-            return { success: false, error: "Updating member detail failed" };
-        }
-        const updateBookDetail = updateBookToAvailable(book);
-        if (!updateBookDetail) {
-            return { success: false, error: "Updating book detail failed" };
-        }
-        return { success: true, error: "" };
-    } catch (err) {
-        console.log(err);
-        return { success: false, error: "Internal Server Error" };
+    //update book in member
+    const member = await findById("Member", memberId);
+    const book = await findById("Book", bookId);
+    if (!member) {
+        throw new Error("Member not found");
     }
+    if (!book) {
+        throw new Error("Book not found");
+    }
+    const updateMemberDetail = updateMemberBooks(member, bookId);
+    if (!updateMemberDetail) {
+        throw new Error("Updating member detail failed");
+    }
+    const updateBookDetail = updateBookToAvailable(book);
+    if (!updateBookDetail) {
+        throw new Error("Updating book detail failed");
+    }
+    return true;
 }
 
 async function findByIdAndDeleteMember(memberId) {

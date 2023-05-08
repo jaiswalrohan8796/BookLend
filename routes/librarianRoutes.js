@@ -185,6 +185,39 @@ router.get(
     }
 );
 
+router.get(
+    "/app/retrieve_book/:memberId/:bookId",
+    auth.authenticate_librarian,
+    async (req, res, next) => {
+        try {
+            const bookId = req.params.bookId;
+            const memberId = req.params.memberId;
+            const result = await db_utils.returnBookfromMember(
+                memberId,
+                bookId
+            );
+            const librarian = await db_utils.findById("Librarian", req.user_id);
+            const members = await db_utils.fetchAllMembers();
+            res.render("librarian/app", {
+                user: librarian,
+                members: members,
+                error: "",
+                status: "Book retrieved !",
+            });
+        } catch (err) {
+            console.log(err);
+            const librarian = await db_utils.findById("Librarian", req.user_id);
+            const members = await db_utils.fetchAllMembers();
+            res.render("librarian/app", {
+                user: librarian,
+                members: members,
+                error: err.message,
+                status: "",
+            });
+        }
+    }
+);
+
 router.get("/library", auth.authenticate_librarian, async (req, res, next) => {
     try {
         const librarian = await db_utils.findById("Librarian", req.user_id);
@@ -228,7 +261,17 @@ router.post(
             let new_book = new Book(book_data);
             const isSaved = await new_book.save();
             if (isSaved) {
-                res.redirect("/librarian/library");
+                const librarian = await db_utils.findById(
+                    "Librarian",
+                    req.user_id
+                );
+                let allBooks = await db_utils.fetchAllBooks();
+                res.render("librarian/library", {
+                    user: librarian,
+                    books: allBooks,
+                    error: "",
+                    status: "Book added !",
+                });
             } else {
                 throw new Error("Internal Server Error");
             }
